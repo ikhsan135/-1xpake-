@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RAMADAN · ikhsanproject</title>
+    <style>
+        /* LIGHTWEIGHT NEON FUTURISTIC */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #0b0e1a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        /* LAYER LOGIN & VIDEO */
+        .layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.25s ease;
+            background: radial-gradient(circle at 20% 30%, #0f1322, #02040a);
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .hidden-layer {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        /* CARD UTAMA (biar ringan, tanpa banyak blur kecuali di border) */
+        .card {
+            max-width: 920px;
+            margin: 3rem auto;
+            background: rgba(8, 14, 23, 0.9);
+            border: 2px solid #0ff;
+            border-radius: 36px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 0 25px #00e0ff, 0 0 8px #ff44ee inset;
+            backdrop-filter: blur(4px); /* ringan */
+        }
+
+        /* HEADER NEON */
+        .header-neon {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #0ff;
+        }
+
+        .header-neon h1 {
+            font-size: clamp(1.5rem, 7vw, 2.3rem);
+            font-weight: 800;
+            background: linear-gradient(130deg, #aaf0ff, #ffa0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px cyan;
+            letter-spacing: 1px;
+        }
+
+        .watermark {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #c0ffff;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 6px 20px;
+            border-radius: 40px;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 12px cyan;
+            white-space: nowrap;
+        }
+
+        .watermark::before { content: "⚡"; margin-right: 6px; }
+        .watermark::after { content: "⚡"; margin-left: 6px; }
+
+        /* PANEL PASSWORD */
+        .lock-panel {
+            background: rgba(0, 15, 30, 0.7);
+            border: 2px solid #f0f;
+            border-radius: 48px;
+            padding: 30px 18px;
+            margin: 25px 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            box-shadow: 0 0 35px #ff22ee;
+        }
+
+        .lock-panel input {
+            flex: 2 1 240px;
+            background: #111927;
+            border: 2px solid #0ff;
+            border-radius: 50px;
+            padding: 16px 22px;
+            font-size: 1.1rem;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 12px cyan;
+        }
+
+        .lock-panel input::placeholder {
+            color: #7f9fbf;
+        }
+
+        .btn-neon {
+            background: transparent;
+            border: 2px solid #0ff;
+            color: #0ff;
+            font-weight: 700;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px cyan;
+            transition: 0.15s;
+            backdrop-filter: blur(2px);
+            letter-spacing: 2px;
+        }
+
+        .btn-neon:hover {
+            background: cyan;
+            color: #000;
+            box-shadow: 0 0 30px cyan, 0 0 30px magenta;
+        }
+
+        .btn-neon:active {
+            transform: scale(0.97);
+        }
+
+        .wa-button {
+            border-color: #2ecc71;
+            color: #aaffdd;
+            box-shadow: 0 0 20px #2ecc71;
+        }
+        .wa-button:hover {
+            background: #2ecc71;
+            color: #000;
+        }
+
+        /* pesan error */
+        .error-msg {
+            color: #ffa0c0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 0 8px red;
+            min-height: 2.4rem;
+            margin: 10px 0;
+        }
+
+        /* LAYER VIDEO (LAYER 2) */
+        .video-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .btn-exit {
+            background: rgba(255, 60, 100, 0.2);
+            border: 2px solid #ff4466;
+            color: #ffb0c0;
+            font-size: 1.4rem;
+            padding: 10px 25px;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #ff2266;
+            font-weight: bold;
+            backdrop-filter: blur(2px);
+            transition: 0.15s;
+        }
+
+        .btn-exit:hover {
+            background: #ff4466;
+            color: white;
+            box-shadow: 0 0 40px #ff2266;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            border-radius: 40px;
+            overflow: hidden;
+            border: 3px solid #ff44ee;
+            box-shadow: 0 0 50px #ff00b3;
+            background: black;
+            aspect-ratio: 16 / 9;
+            margin: 15px 0 10px;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: auto;
+        }
+
+        /* WATERMARK DI DALAM VIDEO */
+        .video-watermark {
+            position: absolute;
+            bottom: 18px;
+            right: 20px;
+            color: rgba(255,255,255,0.4);
+            font-size: 1.6rem;
+            font-weight: 800;
+            transform: rotate(-7deg);
+            text-shadow: 0 0 15px cyan, 0 0 30px magenta;
+            pointer-events: none;
+            z-index: 15;
+            background: rgba(0,0,0,0.2);
+            padding: 5px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap;
+        }
+
+        .small-note {
+            color: #aad0ff;
+            text-align: center;
+            background: rgba(0,20,40,0.6);
+            padding: 8px 15px;
+            border-radius: 50px;
+            margin-top: 15px;
+        }
+
+        /* SEMUA ELEMEN RINGAN, TANPA ANIMASI BERAT */
+        .no-select {
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- LAYER 1 : LOGIN -->
+    <div id="layerLogin" class="layer">
+        <div class="card">
+            <div class="header-neon">
+                <h1>🌙 day in my life<br><span style="font-size: 0.7em;">in the month of ramadan</span></h1>
+                <div class="watermark">@ikhsanproject</div>
+            </div>
+
+            <!-- KONFIG (gampang diubah) -->
+            <!-- password base64: aWtoc2Fubm90ZGV2 = ikhsannotdev -->
+            <!-- link video: https://files.catbox.moe/jqu6ts.mp4 -->
+            <!-- wa: 628811745561 -->
+
+            <div class="lock-panel">
+                <input type="password" id="passwordInput" placeholder="🔒 enter code">
+                <button class="btn-neon" id="unlockBtn">⏐ UNLOCK ⏐</button>
+                <button class="btn-neon wa-button" id="waBtn">📱 MINTA PW</button>
+            </div>
+
+            <div id="loginError" class="error-msg"></div>
+
+            <!-- info ringan -->
+            <div style="text-align: center; color: #8ab0e0; margin-top: 30px; font-size: 0.95rem;">
+                ✦ masukkan password untuk akses video ✦
+            </div>
+        </div>
+    </div>
+
+    <!-- LAYER 2 : VIDEO (tersembunyi awalnya) -->
+    <div id="layerVideo" class="layer hidden-layer">
+        <div class="card" style="margin-top: 1.5rem;">
+            <div class="video-header">
+                <button class="btn-exit" id="exitBtn">✖ KELUAR</button>
+            </div>
+
+            <!-- judul kecil di video layer -->
+            <div style="color: #0ff; font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; text-shadow: 0 0 10px magenta;">
+                🌙 RAMADAN STREAM
+            </div>
+
+            <div class="video-container">
+                <video id="protectedVideo" 
+                       controls 
+                       controlsList="nodownload noremoteplayback" 
+                       disablepictureinpicture
+                       oncontextmenu="return false;" 
+                       preload="metadata">
+                    <source src="" type="video/mp4" id="videoSource">
+                </video>
+                <div class="video-watermark">
+                    ⚡ @ikhsanproject ⚡
+                </div>
+            </div>
+
+            <div class="small-note">
+                ✦ anti download · video eksklusif ✦
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ========== KONFIGURASI MUDAH ==========
+            const CORRECT_PW_BASE64 = "aWtoc2Fubm90ZGV2";   // base64 dari "ikhsannotdev"
+            const VIDEO_URL = "https://files.catbox.moe/jqu6ts.mp4";
+            const WA_PHONE = "628811745561";
+            // ========================================
+
+            // decode password
+            function getCorrectPassword() {
+                try { return atob(CORRECT_PW_BASE64); } 
+                catch { return "ikhsannotdev"; }
+            }
+            const CORRECT_PW = getCorrectPassword();
+
+            // elemen layer
+            const layerLogin = document.getElementById('layerLogin');
+            const layerVideo = document.getElementById('layerVideo');
+            const passwordInput = document.getElementById('passwordInput');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const waBtn = document.getElementById('waBtn');
+            const exitBtn = document.getElementById('exitBtn');
+            const loginError = document.getElementById('loginError');
+            const videoElement = document.getElementById('protectedVideo');
+            const videoSource = document.getElementById('videoSource');
+
+            // utility: set video source
+            function loadVideoSource() {
+                if (VIDEO_URL) {
+                    videoSource.src = VIDEO_URL;
+                    videoElement.load();
+                } else {
+                    console.warn("video url kosong");
+                }
+            }
+
+            // proteksi dasar anti download (ringan)
+            document.addEventListener('keydown', function(e) {
+                if ((e.key === 's' || e.key === 'S') && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    loginError.innerText = '⛔ download diblokir';
+                }
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    e.preventDefault();
+                }
+            });
+
+            // proteksi context menu di video (tapi tidak di input)
+            videoElement.addEventListener('contextmenu', (e) => e.preventDefault());
+            videoElement.addEventListener('dragstart', (e) => e.preventDefault());
+
+            // tombol UNLOCK
+            unlockBtn.addEventListener('click', function() {
+                const entered = passwordInput.value;
+                if (entered === CORRECT_PW) {
+                    // beralih ke layer video
+                    layerLogin.classList.add('hidden-layer');
+                    layerVideo.classList.remove('hidden-layer');
+                    loginError.innerText = ''; // bersihkan error
+                    loadVideoSource();          // set video
+                } else {
+                    // tampilkan pesan "password salah! coba lagi"
+                    loginError.innerText = '❌ password salah! coba lagi';
+                    // sembunyikan video jika kebetulan keliatan (misal sebelumnya sudah login)
+                    layerVideo.classList.add('hidden-layer');
+                    layerLogin.classList.remove('hidden-layer');
+                    videoElement.pause();
+                }
+            });
+
+            // enter pada input
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    unlockBtn.click();
+                }
+            });
+
+            // tombol WA
+            waBtn.addEventListener('click', function() {
+                window.open(`https://api.whatsapp.com/send/?phone=${WA_PHONE}&text&type=phone_number&app_absent=0`, '_blank');
+            });
+
+            // tombol KELUAR (dari layer video kembali ke login)
+            exitBtn.addEventListener('click', function() {
+                layerVideo.classList.add('hidden-layer');
+                layerLogin.classList.remove('hidden-layer');
+                videoElement.pause();           // pause video
+                videoSource.src = '';            // kosongkan source (opsional, hemat memori)
+                videoElement.load();
+                passwordInput.value = '';         // kosongkan input
+                loginError.innerText = '';        // hapus pesan error
+            });
+
+            // inisialisasi: pastikan video dalam keadaan kosong
+            videoSource.src = '';
+            videoElement.load();
+            loginError.innerText = ''; // tidak ada error awal
+
+            // proteksi ringan long press pada video (opsional)
+            let timer;
+            videoElement.addEventListener('touchstart', (e) => {
+                timer = setTimeout(() => {
+                    loginError.innerText = '⛔ tekan tahan tidak berguna';
+                }, 600);
+            });
+            videoElement.addEventListener('touchend', () => clearTimeout(timer));
+            videoElement.addEventListener('touchcancel', () => clearTimeout(timer));
+
+            // pesan kecil di console
+            console.log('✅ 2-layer siap, password (base64):', CORRECT_PW_BASE64);
+        })();
+    </script>
+</body>
+</html>
